@@ -1,0 +1,172 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroUsluga - Košnja, Obrezovanje, Mulčenje</title>
+  <meta name="description" content="Kosimo travo, obrezujemo drevesa in trte, mulčimo v Sloveniji. Testna košnja 100 m² zastonj (plačate potne stroške). Popusti za površine nad 10 arov!">
+  <meta property="og:title" content="AgroUsluga - Košnja in Obrezovanje">
+  <meta property="og:description" content="Testna košnja 100 m² zastonj, plačate le potne stroške! Popusti za površine nad 10 arov. Naroči na agrousluga.github.io!">
+  <meta property="og:image" content="https://via.placeholder.com/1200x630?text=AgroUsluga">
+  <meta property="og:url" content="https://agrousluga.github.io">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-4">
+    <div class="container mx-auto text-center">
+      <h1 class="text-3xl font-bold">AgroUsluga</h1>
+      <p class="text-lg">Košnja, obrezovanje dreves in trte, mulčenje – testna košnja 100 m² zastonj!</p>
+    </div>
+  </header>
+
+  <!-- Main Section -->
+  <section class="container mx-auto py-8">
+    <div class="flex flex-col md:flex-row gap-8">
+      <!-- About -->
+      <div class="md:w-1/2 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-4">Naše storitve</h2>
+        <p class="mb-4">Urejamo vaše parcele po Sloveniji. Ponujamo:</p>
+        <ul class="list-disc pl-5 mb-4">
+          <li><strong>Testna košnja zastonj</strong>: 100 m² brezplačno, plačate le potne stroške.</li>
+          <li><strong>Popusti</strong>: Za površine nad 10 arov (1000 m²) ugodne cene po dogovoru.</li>
+          <li><strong>Košnja trave</strong>: Hitro in zanesljivo, cena odvisna od terena.</li>
+          <li><strong>Obrezovanje dreves/trte</strong>: Sadovnjaki, vinogradi, okrasna drevesa.</li>
+          <li><strong>Mulčenje/sajenje</strong>: Čiščenje parcel, kompost, sajenje.</li>
+        </ul>
+        <p>Plačilo na TRR ali gotovino. Kontaktirajte nas za oceno ali naročite prek obrazca!</p>
+      </div>
+
+      <!-- Form -->
+      <div class="md:w-1/2 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-4">Naroči storitev</h2>
+        <form id="agro-form" class="space-y-4">
+          <div>
+            <label for="ime" class="block text-sm font-medium">Ime in priimek</label>
+            <input type="text" id="ime" name="ime" class="w-full p-2 border rounded" required>
+          </div>
+          <div>
+            <label for="naslov" class="block text-sm font-medium">Naslov parcele</label>
+            <input type="text" id="naslov" name="naslov" class="w-full p-2 border rounded" required>
+          </div>
+          <div>
+            <label for="povrsina" class="block text-sm font-medium">Površina (m²)</label>
+            <input type="number" id="povrsina" name="povrsina" class="w-full p-2 border rounded" required>
+          </div>
+          <div>
+            <label for="storitev" class="block text-sm font-medium">Izberite storitev</label>
+            <select id="storitev" name="storitev" class="w-full p-2 border rounded" required>
+              <option value="kosnja">Košnja trave</option>
+              <option value="obrezovanje_dreves">Obrezovanje dreves</option>
+              <option value="obrezovanje_trte">Obrezovanje trte</option>
+              <option value="mulcenje">Mulčenje</option>
+              <option value="sajenje">Sajenje/čiščenje</option>
+            </select>
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium">E-pošta</label>
+            <input type="email" id="email" name="email" class="w-full p-2 border rounded" required>
+          </div>
+          <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">Pošlji naročilo</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="bg-gray-200 py-8">
+    <div class="container mx-auto text-center">
+      <h2 class="text-2xl font-semibold mb-4">Kontakt</h2>
+      <p>E-pošta: <a href="mailto:tvoj.email@example.com" class="text-blue-600">tvoj.email@example.com</a></p>
+      <p>TRR: SI56 1234 5678 9012 345 (ali gotovinska plačila ob storitvi)</p>
+      <p>Delimo na <a href="https://www.facebook.com" target="_blank" class="text-blue-600">Facebooku</a>!</p>
+    </div>
+  </section>
+
+  <!-- JavaScript -->
+  <script>
+    // Initialize EmailJS
+    emailjs.init("tvoj_emailjs_user_id"); // Zamenjaj z EmailJS User ID (po registraciji na emailjs.com)
+
+    // Form submission
+    document.getElementById('agro-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const formData = new FormData(this);
+      const data = {
+        ime: formData.get('ime'),
+        naslov: formData.get('naslov'),
+        povrsina: formData.get('povrsina'),
+        storitev: formData.get('storitev'),
+        email: formData.get('email')
+      };
+
+      // Send email via EmailJS
+      emailjs.send('service_tvoj_id', 'template_tvoj_id', data)
+        .then(() => {
+          alert('Naročilo poslano! Prejeli boste delovni nalog in oceno po ogledu.');
+          generateWorkOrder(data);
+        }, (error) => {
+          alert('Napaka pri pošiljanju: ' + JSON.stringify(error));
+        });
+    });
+
+    // Generate Work Order PDF
+    function generateWorkOrder(data) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text('Delovni nalog - AgroUsluga', 20, 20);
+      doc.setFontSize(12);
+      doc.text(`Ime: ${data.ime}`, 20, 40);
+      doc.text(`Naslov parcele: ${data.naslov}`, 20, 50);
+      doc.text(`Površina: ${data.povrsina} m²`, 20, 60);
+      doc.text(`Storitev: ${data.storitev.replace('_', ' ')}`, 20, 70);
+      doc.text(`E-pošta: ${data.email}`, 20, 80);
+      doc.text(`Datum: ${new Date().toLocaleDateString('sl-SI')}`, 20, 90);
+      doc.text(`Opomba: Testna košnja 100 m² zastonj, plačate potne stroške. Cena po ogledu.`, 20, 100);
+      doc.save(`delovni_nalog_${data.ime}_${new Date().toISOString().slice(0,10)}.pdf`);
+    }
+  </script>
+</body>
+</html>
