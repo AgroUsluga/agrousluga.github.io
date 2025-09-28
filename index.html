@@ -6,12 +6,11 @@
   <title>AgroUsluga - Košnja, Obrezovanje, Mulčenje</title>
   <meta name="description" content="Kosimo travo, obrezujemo drevesa in trte, mulčimo v Sloveniji. Testna košnja 100 m² zastonj (plačate potne stroške). Popusti za površine nad 10 arov!">
   <meta property="og:title" content="AgroUsluga - Košnja in Obrezovanje">
-  <meta property="og:description" content="Testna košnja 100 m² zastonj, plačate le potne stroške! Popusti za površine nad 10 arov. Naročite na agrousluga.github.io!">
+  <meta property="og:description" content="Testna košnja 100 m² zastonj, plačate le potne stroške! Popusti za površine nad 10 arov. Pišite na agrousluga@proton.me!">
   <meta property="og:image" content="https://via.placeholder.com/1200x630?text=AgroUsluga">
   <meta property="og:url" content="https://agrousluga.github.io">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.emailjs.com/sdk/latest/email.min.js"></script>
 </head>
 <body class="bg-gray-100 font-sans">
   <!-- Header -->
@@ -58,41 +57,19 @@
         <p>Plačilo na TRR ali z gotovino ob storitvi.</p>
       </div>
 
-      <!-- Form -->
+      <!-- Contact Form (replaced with mailto) -->
       <div class="md:w-1/2 bg-white p-6 rounded-lg shadow-md">
         <h2 class="text-2xl font-semibold mb-4">Naroči storitev</h2>
-        <form id="agro-form" class="space-y-4">
-          <div>
-            <label for="ime" class="block text-sm font-medium">Ime in priimek</label>
-            <input type="text" id="ime" name="ime" class="w-full p-2 border rounded" required>
-          </div>
-          <div>
-            <label for="naslov" class="block text-sm font-medium">Naslov parcele</label>
-            <input type="text" id="naslov" name="naslov" class="w-full p-2 border rounded" required>
-          </div>
-          <div>
-            <label for="povrsina" class="block text-sm font-medium">Površina (m²)</label>
-            <input type="number" id="povrsina" name="povrsina" class="w-full p-2 border rounded" required>
-          </div>
-          <div>
-            <label for="storitev" class="block text-sm font-medium">Izberite storitev</label>
-            <select id="storitev" name="storitev" class="w-full p-2 border rounded" required>
-              <option value="kosnja">Košnja trave</option>
-              <option value="obrezovanje_dreves">Obrezovanje dreves</option>
-              <option value="obrezovanje_trte">Obrezovanje trte</option>
-              <option value="mulcenje">Mulčenje</option>
-              <option value="sajenje">Sajenje/čiščenje</option>
-            </select>
-          </div>
-          <div>
-            <label for="email" class="block text-sm font-medium">E-pošta</label>
-            <input type="email" id="email" name="email" class="w-full p-2 border rounded" required>
-          </div>
-          <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">Pošlji naročilo</button>
-        </form>
-        <p class="mt-4 text-sm text-gray-600">
-          Ali pišite direktno na <a href="mailto:agrousluga@proton.me?subject=Novo%20naročilo%20iz%20AgroUsluga&body=Ime:%0ANaslov%20parcele:%0APovršina:%0AStoritev:%0AE-pošta:%0A" class="text-blue-600 underline">agrousluga@proton.me</a> za hitrejši odziv!
-        </p>
+        <p class="mb-4">Pišite nam na <a href="mailto:agrousluga@proton.me?subject=Novo%20naročilo%20iz%20AgroUsluga&body=Ime%20in%20priimek:%0ANaslov%20parcele:%0APovršina%20(m²):%0AŽeljena%20storitev%20(Košnja%20trave,%20Obrezovanje%20dreves,%20Obrezovanje%20trte,%20Mulčenje,%20Sajenje/čiščenje):%0AE-pošta:%0A" class="text-blue-600 underline">agrousluga@proton.me</a> in vnesite naslednje podatke:</p>
+        <ul class="list-disc pl-5 mb-4">
+          <li>Ime in priimek</li>
+          <li>Naslov parcele</li>
+          <li>Površina (m²)</li>
+          <li>Željena storitev (Košnja trave, Obrezovanje dreves, Obrezovanje trte, Mulčenje, Sajenje/čiščenje)</li>
+          <li>E-pošta</li>
+        </ul>
+        <a href="mailto:agrousluga@proton.me?subject=Novo%20naročilo%20iz%20AgroUsluga&body=Ime%20in%20priimek:%0ANaslov%20parcele:%0APovršina%20(m²):%0AŽeljena%20storitev%20(Košnja%20trave,%20Obrezovanje%20dreves,%20Obrezovanje%20trte,%20Mulčenje,%20Sajenje/čiščenje):%0AE-pošta:%0A" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 inline-block">Pišite na e-pošto</a>
+        <button onclick="generateWorkOrder({ime: 'Test', naslov: 'Test', povrsina: 'Test', storitev: 'Test', email: 'Test'})" class="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 mt-2">Generiraj testni delovni nalog</button>
       </div>
     </div>
   </section>
@@ -107,47 +84,9 @@
     </div>
   </section>
 
-  <!-- JavaScript -->
+  <!-- JavaScript for PDF only -->
   <script>
-    // Check if EmailJS is loaded
-    window.onload = function() {
-      if (typeof emailjs === 'undefined') {
-        console.error('EmailJS SDK ni naložen!');
-        alert('Napaka: EmailJS ni naložen. Uporabite direktni e-poštni naslov.');
-      } else {
-        console.log('EmailJS SDK uspešno naložen.');
-        emailjs.init("z5qg90tnSqROlHHiU"); // EmailJS Public Key
-      }
-    };
-
-    // Form submission
-    document.getElementById('agro-form').addEventListener('submit', function(event) {
-      event.preventDefault();
-      console.log('Obrazec poslan, pošiljam EmailJS...');
-      const formData = new FormData(this);
-      const data = {
-        ime: formData.get('ime'),
-        naslov: formData.get('naslov'),
-        povrsina: formData.get('povrsina'),
-        storitev: formData.get('storitev'),
-        email: formData.get('email'),
-        to_email: "agrousluga@proton.me" // Pošiljanje na ProtonMail
-      };
-      console.log('Podatki obrazca:', data);
-
-      // Send email via EmailJS
-      emailjs.sendForm('service_zui3ysm', 'template_d0h55ir', this)
-        .then(() => {
-          console.log('E-mail uspešno poslan!');
-          alert('Naročilo poslano! Prejeli boste delovni nalog in oceno po ogledu.');
-          generateWorkOrder(data);
-        }, (error) => {
-          console.error('Napaka pri pošiljanju:', error);
-          alert('Napaka pri pošiljanju: ' + JSON.stringify(error) + '. Poskusite direktno na agrousluga@proton.me.');
-        });
-    });
-
-    // Generate Work Order PDF
+    // Generate Work Order PDF (test)
     function generateWorkOrder(data) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
